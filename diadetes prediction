@@ -1,0 +1,83 @@
+Download The Diabetes Prediction Dataset from the kaggle Load the Dataset using Pandas and perform Given Tasks. Explore Descriptive statistics with a given Dataset.Re-move null values from the dataset and show how many null values in the dataset.
+Divide data x(independent) and y(dependent) values. Create a Train and Test split from the data.Load Logistic regression, random forest and decision tree and check test accuracy.
+[ ]: import pandas as pd
+data = pd.read_csv('/content/diabetes.csv')
+print(data.describe())
+null_values = data.isnull().sum()
+print("Null values in each column:\n", null_values)
+data_cleaned = data.dropna()
+print("Null values after cleaning:\n", data_cleaned.isnull().sum())
+X = data_cleaned[['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness',␣
+↪'Insulin', 'BMI', 'Age']]
+y = data_cleaned['Outcome']
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,␣
+↪random_state=42)
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+log_reg = LogisticRegression(max_iter=1000)
+log_reg.fit(X_train, y_train)
+y_pred_log_reg = log_reg.predict(X_test)
+log_reg_accuracy = accuracy_score(y_test, y_pred_log_reg)
+print(f'Logistic Regression Accuracy: {log_reg_accuracy}')
+from sklearn.ensemble import RandomForestClassifier
+
+1
+
+rand_forest = RandomForestClassifier()
+rand_forest.fit(X_train, y_train)
+y_pred_rand_forest = rand_forest.predict(X_test)
+rand_forest_accuracy = accuracy_score(y_test, y_pred_rand_forest)
+print(f'Random Forest Accuracy: {rand_forest_accuracy}')
+from sklearn.tree import DecisionTreeClassifier
+dec_tree = DecisionTreeClassifier()
+dec_tree.fit(X_train, y_train)
+y_pred_dec_tree = dec_tree.predict(X_test)
+dec_tree_accuracy = accuracy_score(y_test, y_pred_dec_tree)
+print(f'Decision Tree Accuracy: {dec_tree_accuracy}')
+Pregnancies Glucose BloodPressure SkinThickness Insulin \
+count 758.000000 761.000000 763.000000 765.000000 764.000000
+mean 3.833773 120.877792 69.065531 20.498039 79.468586
+std 3.376634 32.074741 19.384043 15.970983 114.873035
+min 0.000000 0.000000 0.000000 0.000000 0.000000
+25% 1.000000 99.000000 62.000000 0.000000 0.000000
+50% 3.000000 117.000000 72.000000 23.000000 30.500000
+75% 6.000000 140.000000 80.000000 32.000000 126.250000
+max 17.000000 199.000000 122.000000 99.000000 846.000000
+BMI DiabetesPedigreeFunction Age Outcome
+count 761.000000 761.000000 768.000000 765.000000
+mean 32.040999 0.472191 33.240885 0.350327
+std 7.812234 0.331765 11.760232 0.477384
+min 0.000000 0.078000 21.000000 0.000000
+25% 27.300000 0.241000 24.000000 0.000000
+50% 32.000000 0.374000 29.000000 0.000000
+75% 36.600000 0.627000 41.000000 1.000000
+max 67.100000 2.420000 81.000000 1.000000
+Null values in each column:
+Pregnancies 10
+Glucose 7
+BloodPressure 5
+SkinThickness 3
+Insulin 4
+BMI 7
+DiabetesPedigreeFunction 7
+Age 0
+Outcome 3
+dtype: int64
+Null values after cleaning:
+Pregnancies 0
+
+2
+
+Glucose 0
+BloodPressure 0
+SkinThickness 0
+Insulin 0
+BMI 0
+DiabetesPedigreeFunction 0
+Age 0
+Outcome 0
+dtype: int64
+Logistic Regression Accuracy: 0.8287671232876712
+Random Forest Accuracy: 0.7534246575342466
+Decision Tree Accuracy: 0.6986301369863014
