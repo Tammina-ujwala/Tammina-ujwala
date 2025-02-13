@@ -1,0 +1,114 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+# Step 1: Load the dataset
+file_path = '/content/data.csv' # Replace with your actual file path
+df = pd.read_csv(file_path)
+# Step 2: Check the datatype of columns
+print("Column Datatypes:")
+print(df.dtypes)
+print()
+# Step 3: Perform descriptive statistics
+print("Descriptive Statistics:")
+print(df.describe())
+print()
+# Step 4: Preprocessing
+# Handle missing values
+df['yr_renovated'].fillna(0, inplace=True) # Assuming NaN means no renovation
+df['waterfront'].fillna('Unknown', inplace=True) # Assuming categorical␣
+↪treatment
+# Separate features (X) and target variable (y)
+X = df.drop(columns=['price', 'date', 'street', 'city', 'statezip', 'country'])␣
+↪ # Drop non-numeric and unnecessary columns
+y = df['price']
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,␣
+↪random_state=42)
+
+1
+
+# Preprocessing pipeline for numeric and categorical features
+numeric_features = X.select_dtypes(include=['int64', 'float64']).columns
+numeric_transformer = Pipeline(steps=[
+('imputer', SimpleImputer(strategy='median')),
+('scaler', StandardScaler())
+])
+categorical_features = X.select_dtypes(include=['object']).columns
+categorical_transformer = Pipeline(steps=[
+('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+('onehot', OneHotEncoder(handle_unknown='ignore'))
+])
+preprocessor = ColumnTransformer(
+transformers=[
+('num', numeric_transformer, numeric_features),
+('cat', categorical_transformer, categorical_features)
+])
+# Append the regression model to the preprocessing pipeline
+lr_model = Pipeline(steps=[('preprocessor', preprocessor),
+('regressor', LinearRegression())])
+
+# Fit the model
+lr_model.fit(X_train, y_train)
+# Predictions
+y_pred = lr_model.predict(X_test)
+# Evaluate the model
+mse = mean_squared_error(y_test, y_pred)
+print(f"Mean Squared Error: {mse}")
+Column Datatypes:
+date object
+price float64
+bedrooms float64
+bathrooms float64
+sqft_living int64
+sqft_lot int64
+floors float64
+waterfront int64
+view int64
+condition int64
+sqft_above int64
+sqft_basement int64
+
+2
+
+yr_built int64
+yr_renovated int64
+street object
+city object
+statezip object
+country object
+dtype: object
+Descriptive Statistics:
+
+price bedrooms bathrooms sqft_living sqft_lot \
+count 4.600000e+03 4600.000000 4600.000000 4600.000000 4.600000e+03
+mean 5.519630e+05 3.400870 2.160815 2139.346957 1.485252e+04
+std 5.638347e+05 0.908848 0.783781 963.206916 3.588444e+04
+min 0.000000e+00 0.000000 0.000000 370.000000 6.380000e+02
+25% 3.228750e+05 3.000000 1.750000 1460.000000 5.000750e+03
+50% 4.609435e+05 3.000000 2.250000 1980.000000 7.683000e+03
+75% 6.549625e+05 4.000000 2.500000 2620.000000 1.100125e+04
+max 2.659000e+07 9.000000 8.000000 13540.000000 1.074218e+06
+floors waterfront view condition sqft_above \
+count 4600.000000 4600.000000 4600.000000 4600.000000 4600.000000
+mean 1.512065 0.007174 0.240652 3.451739 1827.265435
+std 0.538288 0.084404 0.778405 0.677230 862.168977
+min 1.000000 0.000000 0.000000 1.000000 370.000000
+25% 1.000000 0.000000 0.000000 3.000000 1190.000000
+50% 1.500000 0.000000 0.000000 3.000000 1590.000000
+75% 2.000000 0.000000 0.000000 4.000000 2300.000000
+max 3.500000 1.000000 4.000000 5.000000 9410.000000
+sqft_basement yr_built yr_renovated
+count 4600.000000 4600.000000 4600.000000
+mean 312.081522 1970.786304 808.608261
+std 464.137228 29.731848 979.414536
+min 0.000000 1900.000000 0.000000
+25% 0.000000 1951.000000 0.000000
+50% 0.000000 1976.000000 0.000000
+75% 610.000000 1997.000000 1999.000000
+max 4820.000000 2014.000000 2014.000000
+Mean Squared Error: 986921767056.1313
